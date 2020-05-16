@@ -118,16 +118,28 @@ class Salsa:
             return False
 
 
+# OTHER FUNCTIONS ######################################################################################################
+def save_to_file(data, file):
+    fo = open(file, "w")
+    data_json = jsonpickle.encode(data)
+    fo.write(data_json)
+    fo.close()
+
+
+def load_from_file(file):
+    fo = open(file, "r")
+    data_json = fo.read()
+    data = jsonpickle.decode(data_json)
+    fo.close()
+    return data
+
+
 # MENU FUNCTIONS #######################################################################################################
 def rate_salsa():
     # MAIN
     salsa_list = []
-    # if salsa array file exists load it
     if path.exists("salsa_array.txt"):
-        fo = open("salsa_array.txt", "r")
-        salsa_list_json = fo.read()
-        salsa_list = jsonpickle.decode(salsa_list_json)
-        fo.close()
+        salsa_list = load_from_file("salsa_array.txt")
     # else generate random salsas for salsa array
     else:
         for i in range(0, population):
@@ -135,12 +147,8 @@ def rate_salsa():
             salsa.randomize()
             salsa_list.append(salsa)
 
-    # load salsa hashmap
     if path.exists("salsa_hashmap.txt"):
-        fo = open("salsa_hashmap.txt", "r")
-        salsa_hashmap_json = fo.read()
-        salsa_hashmap = jsonpickle.decode(salsa_hashmap_json)
-        fo.close()
+        salsa_hashmap = load_from_file("salsa_hashmap.txt")
     else:
         salsa_hashmap = {}
 
@@ -160,22 +168,12 @@ def rate_salsa():
             salsa.print()
             score = int(input("Enter a score for this salsa (enter 0 to come back later): "))
             salsa.score = score
-
-            # save salsa array
-            fo = open("salsa_array.txt", "w")
-            salsa_list_json = jsonpickle.encode(salsa_list)
-            fo.write(salsa_list_json)
-            fo.close()
+            save_to_file(salsa_list, "salsa_array.txt")
 
             # add score to salsa hashmap
             if not salsa.score == 0:
                 salsa_hashmap[salsa.base[0].name + salsa.base[1].name + salsa.base[2].name + salsa.pepper.name + salsa.herb.name + salsa.method.name] = salsa.score
-
-                # save salsa hashmap
-                fo = open("salsa_hashmap.txt", "w")
-                salsa_hashmap_json = jsonpickle.encode(salsa_hashmap)
-                fo.write(salsa_hashmap_json)
-                fo.close()
+                save_to_file(salsa_hashmap, "salsa_hashmap.txt")
 
             return
 
@@ -186,16 +184,9 @@ def rate_salsa():
             salsa = Salsa()
             salsa_leaderboard.append(salsa)
 
-        fo = open("salsa_leaderboard.txt", "w")
-        salsa_leaderboard_json = jsonpickle.encode(salsa_leaderboard)
-        fo.write(salsa_leaderboard_json)
-        fo.close()
+        save_to_file(salsa_leaderboard, "salsa_leaderboard.txt")
 
-    # load highscore file
-    fo = open("salsa_leaderboard.txt", "r")
-    salsa_leaderboard_json = fo.read()
-    salsa_leaderboard = jsonpickle.decode(salsa_leaderboard_json)
-    fo.close()
+    salsa_leaderboard = load_from_file("salsa_leaderboard.txt")
 
     # update highscore array
     for salsa in salsa_list:
@@ -208,12 +199,7 @@ def rate_salsa():
         print("Highscores:")
         salsa.print()
         salsa.print_score()
-
-    # save to highscore file
-    fo = open("salsa_leaderboard.txt", "w")
-    salsa_leaderboard_json = jsonpickle.encode(salsa_leaderboard)
-    fo.write(salsa_leaderboard_json)
-    fo.close()
+    save_to_file(salsa_leaderboard, "salsa_leaderboard.txt")
 
     total_score_sum = 0
     for salsa in salsa_list:
@@ -300,12 +286,7 @@ def rate_salsa():
         new_salsa_list[i].base.sort(key=lambda x: x.value)
 
     salsa_list = new_salsa_list
-
-    # save to salsa array
-    fo = open("salsa_array.txt", "w")
-    salsa_list_json = jsonpickle.encode(salsa_list)
-    fo.write(salsa_list_json)
-    fo.close()
+    save_to_file(salsa_list, "salsa_array.txt")
 
     print("new generation created")
 
@@ -317,17 +298,9 @@ def view_leaderboard():
         for i in range(0, leaderboard_size):
             salsa = Salsa()
             salsa_leaderboard.append(salsa)
+        save_to_file(salsa_leaderboard, "salsa_leaderboard.txt")
 
-        fo = open("salsa_leaderboard.txt", "w")
-        salsa_leaderboard_json = jsonpickle.encode(salsa_leaderboard)
-        fo.write(salsa_leaderboard_json)
-        fo.close()
-
-    # load highscore file
-    fo = open("salsa_leaderboard.txt", "r")
-    salsa_leaderboard_json = fo.read()
-    salsa_leaderboard = jsonpickle.decode(salsa_leaderboard_json)
-    fo.close()
+    salsa_leaderboard = load_from_file("salsa_leaderboard.txt")
 
     # print highscore file
     for salsa in salsa_leaderboard:
@@ -346,7 +319,7 @@ def modify_salsa():
     return
 
 
-# MAIN
+# MAIN ########################################################################
 master_loop = True
 while master_loop:
     print('')
