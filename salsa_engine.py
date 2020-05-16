@@ -117,6 +117,10 @@ class Salsa:
         else:
             return False
 
+    def hash_ingredients(self):
+        result = self.base[0].name + self.base[1].name + self.base[2].name + self.pepper.name + self.herb.name + self.method.name
+        return result
+
 
 # OTHER FUNCTIONS ######################################################################################################
 def save_to_file(data, file):
@@ -154,15 +158,14 @@ def rate_salsa():
 
     for salsa in salsa_list:
         if salsa.score == 0:
-            # if salsa is in hashmap
-            if salsa.base[0].name + salsa.base[1].name + salsa.base[2].name + salsa.pepper.name + salsa.herb.name + salsa.method.name in salsa_hashmap:
-                # nofity of repeat salsa
+            if salsa.hash_ingredients() in salsa_hashmap:
+                # notify of repeat salsa
                 print("Duplicate salsa detected: ")
                 salsa.print()
-                print("Previously scored: ", salsa_hashmap[salsa.base[0].name + salsa.base[1].name + salsa.base[2].name + salsa.pepper.name + salsa.herb.name + salsa.method.name])
+                print("Previously scored: ", salsa_hashmap[salsa.hash_ingredients()])
                 print("Please use the rescore option in the menu if you'd like to update this score")
                 # load its score into array
-                salsa.score = salsa_hashmap[salsa.base[0].name + salsa.base[1].name + salsa.base[2].name + salsa.pepper.name + salsa.herb.name + salsa.method.name]
+                salsa.score = salsa_hashmap[salsa.hash_ingredients()]
                 continue
 
             salsa.print()
@@ -172,7 +175,7 @@ def rate_salsa():
 
             # add score to salsa hashmap
             if not salsa.score == 0:
-                salsa_hashmap[salsa.base[0].name + salsa.base[1].name + salsa.base[2].name + salsa.pepper.name + salsa.herb.name + salsa.method.name] = salsa.score
+                salsa_hashmap[salsa.hash_ingredients()] = salsa.score
                 save_to_file(salsa_hashmap, "salsa_hashmap.txt")
 
             return
