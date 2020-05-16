@@ -36,7 +36,11 @@ mutation_rate = 0.2           # chance a trait will mutate, >=1 means all traits
 leaderboard_size = 10         # number of best salsas to save
 
 
+# refactor enums to lists because I'm stupid
 # INGREDIENT LIST ENUMS
+
+bases_list = ["TOMATO", "TOMATILLO", "PEACH", "MANGO", "NECTARINE", "PINEAPPLE", "PAPAYA", "BLACKBERRIES",
+              "BLUEBERRIES", "STRAWBERRIES", "RASPBERRIES", "JICAMA", "CRANBERRIES"]
 class Bases(Enum):
     TOMATO = 0
     TOMATILLO = 1
@@ -52,6 +56,7 @@ class Bases(Enum):
     JICAMA = 11
     # CRANBERRIES = 12
 
+peppers_list = ["JALAPENO", "SERRANO", "HABANERO", "CHIPOTLE", "ARBOL", "CASCABEL", "FRESNO", "THAI"]
 class Peppers(Enum):
     JALAPENO = 0
     SERRANO = 1
@@ -62,7 +67,7 @@ class Peppers(Enum):
     FRESNO = 6
     THAI = 7
 
-
+herbs_list = ["CILANTRO", "MINT", "PARSLEY", "TARRAGON", "BASIL"]
 class Herbs(Enum):
     CILANTRO = 0
     MINT = 1
@@ -70,7 +75,7 @@ class Herbs(Enum):
     TARRAGON = 3
     BASIL = 4
 
-
+methods_list = ["BLENDER", "CHOP", "CHAR"]
 class Methods(Enum):
     BLENDER = 0
     CHOP = 1
@@ -110,7 +115,6 @@ class Salsa:
     def print_score(self):
         print("Score: ", self.score)
 
-    # comparator function
     def equals(self, other_salsa):
         if self.base[0] == other_salsa.base[0] and self.base[1] == other_salsa.base[1] and self.base[2] == other_salsa.base[2] and self.pepper == other_salsa.pepper and self.herb == other_salsa.herb and self.method == other_salsa.method:
             return True
@@ -122,7 +126,7 @@ class Salsa:
         return result
 
 
-# OTHER FUNCTIONS ######################################################################################################
+# FILE ACCESS FUNCTIONS ################################################################################################
 def save_to_file(data, file):
     fo = open(file, "w")
     data_json = jsonpickle.encode(data)
@@ -138,12 +142,25 @@ def load_from_file(file):
     return data
 
 
+# NON-DETERMINISM WRAPPING FUNCTIONS ###################################################################################
 def random_wrapper(seed):
     if seed == "random":
         return random()
     else:
         assert type(seed) == int or type(seed) == float
         return seed
+
+
+# MISC FUNCTIONS #######################################################################################################
+# maybe create a population class and put this in it
+def select_parent(salsa_list, total_score_sum):
+    current_score_sum = 0
+    for salsa in salsa_list:
+        current_score_sum += salsa.score
+        if random_wrapper("random") < (current_score_sum / total_score_sum):
+            result = salsa
+            break
+    return result
 
 
 # MENU FUNCTIONS #######################################################################################################
@@ -216,28 +233,18 @@ def rate_salsa():
     for salsa in salsa_list:
         total_score_sum += salsa.score
 
+    # create new generation
     new_salsa_list = []
     for i in range(0, population):
         # init
         salsa = Salsa()
         new_salsa_list.append(salsa)
 
-        # parent selection
-        current_score_sum = 0
-        for salsa in salsa_list:
-            current_score_sum += salsa.score
-            if random_wrapper("random") < (current_score_sum / total_score_sum):
-                parent1 = salsa
-                break
-
-        current_score_sum = 0
-        for salsa in salsa_list:
-            current_score_sum += salsa.score
-            if random_wrapper("random") < (current_score_sum / total_score_sum):
-                if parent1.equals(salsa):
-                    continue
-                parent2 = salsa
-                break
+        # create new child
+        parent1 = select_parent(salsa_list, total_score_sum)
+        parent2 = select_parent(salsa_list, total_score_sum)
+        while parent1.equals(parent2):
+            parent2 = select_parent(salsa_list, total_score_sum)
 
         # crossover
         if random_wrapper("random") < 0.5:
@@ -334,6 +341,9 @@ def modify_salsa():
 master_loop = True
 while master_loop:
     # consider refactoring to menu class with print_menu, register_to_menu, and select_from_menu
+    # initialize menu
+
+    # print menu
     print('')
     print("Salsa Engine V2")
     print("1) View and rate salsa")
@@ -341,6 +351,8 @@ while master_loop:
     print("3) Change score")
     print("4) Modify salsa")
     print("0) exit")
+
+    # select from menu
     selection = input("Enter the number corresponding to your selection: ")
     if selection == '1':
         rate_salsa()
