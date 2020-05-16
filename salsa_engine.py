@@ -138,12 +138,12 @@ def load_from_file(file):
     return data
 
 
-def random_wrapper():
-    return random()
-
-
 def random_wrapper(seed):
-    return seed
+    if seed == "random":
+        return random()
+    else:
+        assert type(seed) == int or type(seed) == float
+        return seed
 
 
 # MENU FUNCTIONS #######################################################################################################
@@ -226,71 +226,71 @@ def rate_salsa():
         current_score_sum = 0
         for salsa in salsa_list:
             current_score_sum += salsa.score
-            if random_wrapper() < (current_score_sum / total_score_sum):
+            if random_wrapper("random") < (current_score_sum / total_score_sum):
                 parent1 = salsa
                 break
 
         current_score_sum = 0
         for salsa in salsa_list:
             current_score_sum += salsa.score
-            if random_wrapper() < (current_score_sum / total_score_sum):
+            if random_wrapper("random") < (current_score_sum / total_score_sum):
                 if parent1.equals(salsa):
                     continue
                 parent2 = salsa
                 break
 
         # crossover
-        if random_wrapper() < 0.5:
+        if random_wrapper("random") < 0.5:
             new_salsa_list[i].base[0] = parent1.base[0]
         else:
             new_salsa_list[i].base[0] = parent2.base[0]
         # mutation
-        if random_wrapper() < mutation_rate:
+        if random_wrapper("random") < mutation_rate:
             new_salsa_list[i].base[0] = Bases(randrange(len(Bases)))
 
         # crossover
-        if random_wrapper() < 0.5:
+        if random_wrapper("random") < 0.5:
             new_salsa_list[i].base[1] = parent1.base[1]
         else:
             new_salsa_list[i].base[1] = parent2.base[1]
         # mutation
-        if random_wrapper() < mutation_rate:
+        if random_wrapper("random") < mutation_rate:
             new_salsa_list[i].base[1] = Bases(randrange(len(Bases)))
 
         # crossover
-        if random_wrapper() < 0.5:
+        if random_wrapper("random") < 0.5:
             new_salsa_list[i].base[2] = parent1.base[2]
         else:
             new_salsa_list[i].base[2] = parent2.base[2]
         # mutation
-        if random_wrapper() < mutation_rate:
+        if random_wrapper("random") < mutation_rate:
             new_salsa_list[i].base[2] = Bases(randrange(len(Bases)))
 
         # crossover
-        if random_wrapper() < 0.5:
+        if random_wrapper("random") < 0.5:
             new_salsa_list[i].pepper = parent1.pepper
         else:
             new_salsa_list[i].pepper = parent2.pepper
         # mutation
-        if random_wrapper() < mutation_rate:
+        if random_wrapper("random") < mutation_rate:
             new_salsa_list[i].pepper = Peppers(randrange(len(Peppers)))
 
         # crossover
-        if random_wrapper() < 0.5:
+        if random_wrapper("random") < 0.5:
             new_salsa_list[i].herb = parent1.herb
         else:
             new_salsa_list[i].herb = parent2.herb
         # mutation
-        if random_wrapper() < mutation_rate:
+        if random_wrapper("random") < mutation_rate:
             new_salsa_list[i].herb = Herbs(randrange(len(Herbs)))
 
         # crossover
-        if random_wrapper() < 0.5:
+        if random_wrapper("random") < 0.5:
             new_salsa_list[i].method = parent1.method
         else:
             new_salsa_list[i].method = parent2.method
         # mutation
-        if random_wrapper() < mutation_rate:
+        if random_wrapper("random") < mutation_rate:
             new_salsa_list[i].method = Methods(randrange(len(Methods)))
 
         # sort bases
@@ -333,6 +333,7 @@ def modify_salsa():
 # MAIN ########################################################################
 master_loop = True
 while master_loop:
+    # consider refactoring to menu class with print_menu, register_to_menu, and select_from_menu
     print('')
     print("Salsa Engine V2")
     print("1) View and rate salsa")
